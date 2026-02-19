@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WormPing | Worms Armageddon Notifications for AI Coding Agents</title>
+  <meta name="description" content="Real Worms Armageddon voice notifications for Claude Code, Codex, Cursor, and any AI agent. Stop babysitting your terminal. Deploy a Worm today.">
+  <meta name="theme-color" content="#FF6B35">
+
+  <!-- Open Graph / Twitter -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="WormPing | Deploy a Worm today.">
+  <meta property="og:description" content="Real Worms Armageddon voice notifications for your AI coding agent. 20 soundbanks, 640 voice lines. Stop babysitting your terminal.">
+  <meta property="og:image" content="/images/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="WormPing | Deploy a Worm today.">
+  <meta name="twitter:description" content="Real Worms Armageddon voice notifications for your AI coding agent. 20 soundbanks. Your terminal screams 'Incoming!' so you don't have to watch it.">
+  <meta name="twitter:image" content="/images/og-image.png">
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💣</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-0: #06060f;
+      --bg-1: #0c0c1a;
+      --bg-2: #141428;
+      --bg-3: #1c1c38;
+      --bg-glass: rgba(14, 14, 30, 0.7);
+      --accent: #FF6B35;
+      --accent-dim: rgba(255, 107, 53, 0.12);
+      --accent-glow: rgba(255, 107, 53, 0.35);
+      --teal: #4ECDC4;
+      --teal-dim: rgba(78, 205, 196, 0.12);
+      --pink: #FF69B4;
+      --yellow: #FFD93D;
+      --green: #00E676;
+      --red: #FF5252;
+      --text-0: #ffffff;
+      --text-1: #e8e8f0;
+      --text-2: #9898b8;
+      --text-3: #606080;
+      --border: rgba(255, 255, 255, 0.06);
+      --border-hover: rgba(255, 255, 255, 0.12);
+      --r: 16px;
+      --r-sm: 10px;
+      --sans: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      --mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+    }
+
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg-0);
+      color: var(--text-1);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    ::selection { background: rgba(255, 107, 53, 0.3); color: #fff; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: 3px; }
+
+    /* ==================== NOISE OVERLAY ==================== */
+    body::after {
+      content: ''; position: fixed; inset: 0; z-index: 9999;
+      pointer-events: none; opacity: 0.015;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* ==================== NAV ==================== */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 0 clamp(16px, 4vw, 48px);
+      height: 64px; display: flex; align-items: center; justify-content: space-between;
+      background: rgba(6, 6, 15, 0.8);
+      backdrop-filter: blur(24px) saturate(1.4);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      font-weight: 800; font-size: 18px; letter-spacing: -0.02em;
+      color: var(--text-0); text-decoration: none;
+    }
+    .nav-logo img { width: 32px; height: 32px; border-radius: 8px; }
+    .nav-logo span:last-child {
+      background: linear-gradient(135deg, var(--accent), var(--yellow));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-links { display: flex; gap: 6px; align-items: center; }
+    .nav-links a {
+      color: var(--text-2); text-decoration: none;
+      font-size: 13px; font-weight: 500; padding: 6px 14px;
+      border-radius: 8px; transition: all 0.2s;
+    }
+    .nav-links a:hover { color: var(--text-0); background: rgba(255,255,255,0.04); }
+    .nav-cta {
+      background: var(--accent) !important; color: #fff !important;
+      font-weight: 600 !important;
+      box-shadow: 0 2px 12px var(--accent-glow);
+      transition: all 0.2s !important;
+    }
+    .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 6px 24px var(--accent-glow); }
+
+    /* ==================== HERO ==================== */
+    .hero {
+      min-height: 100vh; min-height: 100dvh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 100px 24px 60px;
+      position: relative; overflow: hidden;
+    }
+
+    /* Gradient orbs */
+    .hero::before, .hero::after {
+      content: ''; position: absolute; border-radius: 50%;
+      filter: blur(120px); pointer-events: none; opacity: 0.4;
+    }
+    .hero::before {
+      width: 600px; height: 600px; top: -150px; left: 50%; transform: translateX(-50%);
+      background: radial-gradient(circle, rgba(255,107,53,0.25), transparent 70%);
+    }
+    .hero::after {
+      width: 400px; height: 400px; bottom: 0; right: -100px;
+      background: radial-gradient(circle, rgba(78,205,196,0.15), transparent 70%);
+    }
+
+    /* Grid pattern */
+    .hero-grid {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 20%, transparent 70%);
+    }
+
+    .hero-content { position: relative; z-index: 2; max-width: 800px; }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 5px 14px 5px 6px;
+      background: var(--accent-dim); border: 1px solid rgba(255,107,53,0.2);
+      border-radius: 999px; font-size: 12px; font-weight: 600;
+      color: var(--accent); margin-bottom: 32px;
+      animation: fadeInUp 0.7s ease-out;
+      letter-spacing: 0.02em;
+    }
+    .hero-badge .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent); animation: blink 2s infinite;
+      margin: 0 4px;
+    }
+
+    .hero-mascot {
+      width: 200px; height: 200px; margin: 0 auto 40px;
+      position: relative;
+      animation: float 4s ease-in-out infinite, fadeInUp 0.7s ease-out 0.1s both;
+    }
+    .hero-mascot img {
+      width: 100%; height: 100%; object-fit: contain;
+      filter: drop-shadow(0 20px 60px rgba(255, 107, 53, 0.3));
+    }
+    .hero-mascot .glow {
+      position: absolute; inset: -20%; border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,107,53,0.15), transparent 60%);
+      animation: pulse-glow 3s ease-in-out infinite;
+    }
+
+    .hero h1 {
+      font-size: clamp(42px, 7vw, 80px); font-weight: 900;
+      line-height: 1.02; letter-spacing: -0.03em;
+      margin-bottom: 24px;
+      animation: fadeInUp 0.7s ease-out 0.15s both;
+    }
+    .hero h1 .gr {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--yellow) 50%, var(--pink) 100%);
+      background-size: 200% 200%;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradient-shift 6s ease infinite;
+    }
+
+    .hero-sub {
+      font-size: clamp(16px, 2.2vw, 20px); color: var(--text-2);
+      max-width: 560px; margin: 0 auto 40px; line-height: 1.7;
+      animation: fadeInUp 0.7s ease-out 0.25s both;
+    }
+
+    .hero-actions {
+      display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+      animation: fadeInUp 0.7s ease-out 0.35s both;
+    }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 24px; border-radius: var(--r-sm);
+      font-size: 14px; font-weight: 600; text-decoration: none;
+      border: none; cursor: pointer; transition: all 0.2s;
+      font-family: var(--sans); letter-spacing: -0.01em;
+    }
+    .btn-accent {
+      background: var(--accent); color: #fff;
+      box-shadow: 0 2px 16px var(--accent-glow);
+    }
+    .btn-accent:hover { transform: translateY(-2px); box-shadow: 0 8px 32px var(--accent-glow); }
+    .btn-ghost {
+      background: rgba(255,255,255,0.04); color: var(--text-1);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.08); border-color: var(--border-hover); }
+
+    .install-cmd {
+      margin-top: 32px; display: inline-flex; align-items: center; gap: 0;
+      background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: var(--r-sm); overflow: hidden;
+      font-family: var(--mono); font-size: 13px;
+      animation: fadeInUp 0.7s ease-out 0.45s both;
+    }
+    .install-cmd code {
+      padding: 10px 16px; color: var(--text-1); user-select: all;
+    }
+    .install-cmd code .pr { color: var(--teal); }
+    .install-cmd button {
+      padding: 10px 14px; background: rgba(255,255,255,0.04);
+      border: none; border-left: 1px solid var(--border);
+      color: var(--text-2); cursor: pointer; transition: all 0.2s;
+      font-size: 14px;
+    }
+    .install-cmd button:hover { background: rgba(255,255,255,0.08); color: var(--accent); }
+
+    /* ==================== SECTION ==================== */
+    .sec {
+      padding: clamp(60px, 10vw, 120px) 24px;
+      max-width: 1200px; margin: 0 auto;
+      position: relative;
+    }
+    .sec-header { text-align: center; margin-bottom: 56px; }
+    .sec-header .label {
+      font-size: 12px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 12px;
+    }
+    .sec-header h2 {
+      font-size: clamp(28px, 4.5vw, 48px); font-weight: 800;
+      letter-spacing: -0.03em; margin-bottom: 16px;
+    }
+    .sec-header p { color: var(--text-2); font-size: 17px; max-width: 520px; margin: 0 auto; }
+
+    .divider {
+      height: 1px; background: linear-gradient(90deg, transparent, var(--border-hover), transparent);
+      max-width: 1200px; margin: 0 auto;
+    }
+
+    .anim { opacity: 0; transform: translateY(24px); transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
+    .anim.vis { opacity: 1; transform: translateY(0); }
+
+    /* ==================== TERMINAL ==================== */
+    .term-wrap { max-width: 780px; margin: 0 auto; }
+    .term {
+      background: var(--bg-1); border: 1px solid var(--border);
+      border-radius: var(--r); overflow: hidden;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.03) inset;
+    }
+    .term-bar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 14px 18px; background: var(--bg-2);
+      border-bottom: 1px solid var(--border);
+    }
+    .term-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .term-dot.r { background: #ff5f57; } .term-dot.y { background: #febc2e; } .term-dot.g { background: #28c840; }
+    .term-title {
+      flex: 1; text-align: center; font-size: 12px;
+      color: var(--text-3); font-family: var(--mono);
+    }
+    .term-body {
+      padding: 20px 24px; font-family: var(--mono);
+      font-size: 13px; line-height: 2; min-height: 300px;
+    }
+    .tl { opacity: 0; transform: translateY(6px); animation: termIn 0.35s ease-out forwards; }
+    .t-pr { color: var(--teal); } .t-snd { color: var(--yellow); }
+    .t-cmt { color: var(--text-3); font-style: italic; }
+    .t-ok { color: var(--green); } .t-perm { color: var(--pink); }
+
+    /* ==================== SOUND CHECK ==================== */
+    .sc-sec { background: var(--bg-1); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .sc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+    .sc-card {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 18px; background: var(--bg-2);
+      border: 1px solid var(--border); border-radius: var(--r-sm);
+      cursor: pointer; transition: all 0.2s; user-select: none;
+    }
+    .sc-card:hover { border-color: var(--accent); background: var(--bg-3); transform: translateY(-1px); }
+    .sc-card.playing { border-color: var(--accent); box-shadow: 0 0 24px var(--accent-dim); }
+    .sc-play {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #ff8c5a);
+      border: none; color: #fff; font-size: 14px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all 0.2s;
+      box-shadow: 0 4px 16px var(--accent-glow);
+    }
+    .sc-play:hover { transform: scale(1.08); }
+    .sc-info { flex: 1; }
+    .sc-line { font-size: 14px; font-weight: 600; color: var(--text-0); }
+    .sc-cat { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; font-weight: 600; }
+
+    /* ==================== STEPS ==================== */
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+    .step-card {
+      padding: 32px 28px; background: var(--bg-2);
+      border: 1px solid var(--border); border-radius: var(--r);
+      transition: all 0.3s; position: relative; overflow: hidden;
+    }
+    .step-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--yellow));
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .step-card:hover { border-color: var(--border-hover); transform: translateY(-4px); }
+    .step-card:hover::before { opacity: 1; }
+    .step-num {
+      font-size: 48px; font-weight: 900; line-height: 1;
+      background: linear-gradient(135deg, var(--accent), var(--yellow));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      margin-bottom: 16px;
+    }
+    .step-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.01em; }
+    .step-card p { font-size: 14px; color: var(--text-2); line-height: 1.6; }
+
+    /* ==================== PACKS ==================== */
+    .pk-filters { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
+    .pk-f {
+      padding: 5px 14px; border-radius: 999px;
+      border: 1px solid var(--border); background: transparent;
+      color: var(--text-2); font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s; font-family: var(--sans);
+      letter-spacing: 0.02em;
+    }
+    .pk-f.on, .pk-f:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .pk-acts { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; }
+    .pk-acts button {
+      padding: 6px 16px; border-radius: var(--r-sm);
+      border: 1px solid var(--border); background: var(--bg-2);
+      color: var(--text-2); font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s; font-family: var(--sans);
+    }
+    .pk-acts button:hover { border-color: var(--accent); color: var(--text-0); }
+    .pk-count { text-align: center; font-size: 13px; color: var(--accent); font-weight: 700; margin-bottom: 28px; }
+
+    .pk-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+    .pk-card {
+      background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 20px; cursor: pointer;
+      transition: all 0.2s; position: relative; overflow: hidden;
+    }
+    .pk-card:hover { border-color: var(--border-hover); }
+    .pk-card.sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+    .pk-card.sel::after {
+      content: '\2713'; position: absolute; top: 10px; right: 10px;
+      width: 22px; height: 22px; background: var(--accent); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; color: #fff; font-weight: 700;
+    }
+    .pk-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .pk-av {
+      width: 44px; height: 44px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; background: var(--accent-dim);
+    }
+    .pk-name { font-weight: 700; font-size: 15px; letter-spacing: -0.01em; }
+    .pk-game { font-size: 11px; color: var(--text-3); font-weight: 500; }
+    .pk-lines { display: flex; flex-direction: column; gap: 6px; }
+    .pk-line {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 10px; background: rgba(255,255,255,0.02);
+      border-radius: 6px; font-size: 12px; transition: background 0.15s;
+    }
+    .pk-line:hover { background: rgba(255,255,255,0.05); }
+    .pk-line .mp {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--accent-dim); border: none;
+      color: var(--accent); font-size: 9px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all 0.15s;
+    }
+    .pk-line .mp:hover { background: var(--accent); color: #fff; }
+    .pk-line .lt { flex: 1; font-weight: 500; color: var(--text-1); }
+    .pk-line .lc { font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+
+    /* Install box */
+    .inst-box {
+      margin-top: 48px; background: var(--bg-1); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 32px; text-align: center;
+    }
+    .inst-box h3 { font-size: 20px; font-weight: 700; margin-bottom: 16px; letter-spacing: -0.02em; }
+    .inst-code {
+      background: var(--bg-0); border: 1px solid var(--border); border-radius: var(--r-sm);
+      padding: 14px 20px; font-family: var(--mono); font-size: 13px;
+      overflow-x: auto; margin-bottom: 16px; text-align: left;
+    }
+    .inst-code .pr { color: var(--teal); }
+
+    /* ==================== FEATURES ==================== */
+    .feat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+    .feat {
+      padding: 24px; background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: var(--r); transition: all 0.2s;
+    }
+    .feat:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+    .feat-ic {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; margin-bottom: 14px;
+      background: var(--accent-dim);
+    }
+    .feat h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.01em; }
+    .feat p { font-size: 13px; color: var(--text-2); line-height: 1.6; }
+
+    /* ==================== SUPPORTED ==================== */
+    .tools { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+    .tool {
+      padding: 10px 20px; background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: var(--r-sm); font-size: 13px; font-weight: 600;
+      color: var(--text-2); transition: all 0.2s; letter-spacing: -0.01em;
+    }
+    .tool:hover { border-color: var(--accent); color: var(--text-0); }
+
+    /* ==================== BANNER ==================== */
+    .banner-sec {
+      padding: 0 24px; max-width: 1200px; margin: -20px auto 0;
+      position: relative; z-index: 1;
+    }
+    .banner-img {
+      width: 100%; max-height: 280px; object-fit: cover;
+      border-radius: var(--r); border: 1px solid var(--border);
+      box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+    }
+
+    /* ==================== TRAINER ==================== */
+    .trainer {
+      background: linear-gradient(135deg, var(--bg-2), rgba(255,107,53,0.04));
+      border: 1px solid var(--border); border-radius: var(--r);
+      padding: 48px 32px; max-width: 680px; margin: 0 auto; text-align: center;
+    }
+    .trainer h3 { font-size: 22px; font-weight: 800; margin-bottom: 12px; letter-spacing: -0.02em; }
+    .trainer > p { color: var(--text-2); margin-bottom: 28px; font-size: 15px; }
+    .tr-stats { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+    .tr-stat {
+      padding: 16px 24px; background: rgba(255,255,255,0.02);
+      border-radius: var(--r-sm); border: 1px solid var(--border);
+    }
+    .tr-stat .n { font-size: 32px; font-weight: 900; color: var(--accent); line-height: 1; }
+    .tr-stat .l { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; margin-top: 4px; }
+
+    /* ==================== CTA ==================== */
+    .cta-sec { text-align: center; }
+    .cta-sec h2 { font-size: clamp(28px, 4vw, 44px); font-weight: 900; letter-spacing: -0.03em; margin-bottom: 16px; }
+    .cta-sec p { color: var(--text-2); font-size: 17px; margin-bottom: 32px; max-width: 480px; margin-left: auto; margin-right: auto; }
+
+    /* ==================== FOOTER ==================== */
+    footer {
+      padding: 48px 24px; text-align: center;
+      border-top: 1px solid var(--border);
+    }
+    .foot-links { display: flex; gap: 20px; justify-content: center; margin-bottom: 16px; }
+    .foot-links a { color: var(--text-2); text-decoration: none; font-size: 13px; font-weight: 500; transition: color 0.2s; }
+    .foot-links a:hover { color: var(--accent); }
+    footer .sub { color: var(--text-3); font-size: 12px; line-height: 1.6; }
+    footer .sub a { color: var(--accent); text-decoration: none; }
+
+    /* ==================== ANIMATIONS ==================== */
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes termIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+    @keyframes gradient-shift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    @keyframes pulse-glow { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.1); } }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    @keyframes wave { from { height: 3px; } to { height: 18px; } }
+
+    /* Waveform */
+    .wv { display: inline-flex; align-items: flex-end; gap: 2px; height: 18px; margin-left: 6px; vertical-align: middle; }
+    .wv i { width: 3px; background: var(--accent); border-radius: 2px; animation: wave 0.5s ease-in-out infinite alternate; font-style: normal; }
+    .wv i:nth-child(1) { animation-delay: 0s; } .wv i:nth-child(2) { animation-delay: 0.1s; }
+    .wv i:nth-child(3) { animation-delay: 0.2s; } .wv i:nth-child(4) { animation-delay: 0.15s; }
+
+    /* ==================== TOAST ==================== */
+    .toast {
+      position: fixed; bottom: 20px; right: 20px; z-index: 1000;
+      background: var(--bg-2); border: 1px solid var(--accent);
+      border-radius: var(--r-sm); padding: 12px 18px;
+      display: flex; align-items: center; gap: 10px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+      animation: slideIn 0.3s ease-out; max-width: 340px;
+    }
+    @keyframes slideIn { from { transform: translateX(80px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    /* Explosion */
+    .expl { position: fixed; pointer-events: none; z-index: 9999; }
+    .expl-p { position: absolute; border-radius: 50%; animation: boom 0.5s ease-out forwards; }
+    @keyframes boom { 0% { transform: translate(0,0) scale(1); opacity: 1; } 100% { transform: translate(var(--x),var(--y)) scale(0); opacity: 0; } }
+
+    /* Volume */
+    .vol-row {
+      display: flex; align-items: center; gap: 8px; justify-content: center;
+      margin-top: 20px; animation: fadeInUp 0.7s ease-out 0.55s both;
+    }
+    .vol-row label { font-size: 12px; color: var(--text-3); }
+    .vol-row input[type="range"] { width: 100px; accent-color: var(--accent); }
+    .vol-row .vv { font-family: var(--mono); font-size: 11px; color: var(--accent); min-width: 28px; }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 768px) {
+      .nav-links a:not(.nav-cta) { display: none; }
+      .hero { padding: 90px 16px 40px; }
+      .hero-mascot { width: 140px; height: 140px; }
+      .install-cmd { font-size: 11px; }
+      .install-cmd code { padding: 8px 12px; }
+      .sec { padding: 48px 16px; }
+      .pk-grid, .sc-grid { grid-template-columns: 1fr; }
+      .feat-grid { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo">
+      <img src="images/worm-cute.png" alt="" onerror="this.outerHTML='<span style=&quot;font-size:24px&quot;>&#x1F4A3;</span>'">
+      <span>Worm</span><span>Ping</span>
+    </a>
+    <div class="nav-links">
+      <a href="#demo">Demo</a>
+      <a href="#sounds">Sounds</a>
+      <a href="#packs">Packs</a>
+      <a href="#features">Features</a>
+      <a href="https://github.com/huntclubhero/wormping" target="_blank">GitHub</a>
+      <a href="#install" class="nav-cta">Install</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-content">
+      <div class="hero-badge"><span class="dot"></span> 20 voice packs | 640 real game sounds</div>
+
+      <div class="hero-mascot">
+        <div class="glow"></div>
+        <img src="images/worm-armed.png" alt="Worms Armageddon"
+             onerror="this.parentElement.innerHTML='<div style=&quot;font-size:120px;line-height:1&quot;>&#x1F4A3;</div>'">
+      </div>
+
+      <h1>Stop babysitting<br>your terminal.<br><span class="gr">Deploy a Worm.</span></h1>
+
+      <p class="hero-sub">
+        Real Worms Armageddon voice lines for Claude Code, Codex, Cursor, and any AI agent.
+        Your terminal screams <strong>"Incoming!"</strong> so you don't have to watch it.
+      </p>
+
+      <div class="hero-actions">
+        <button class="btn btn-accent" onclick="playSound('english','INCOMING',event)">&#9654; Hear a Worm</button>
+        <a href="#packs" class="btn btn-ghost">Browse 20 Packs</a>
+        <a href="https://github.com/huntclubhero/wormping" target="_blank" class="btn btn-ghost">&#9733; GitHub</a>
+      </div>
+
+      <div class="install-cmd">
+        <code><span class="pr">$</span> curl -fsSL wormping.vercel.app/install.sh | bash</code>
+        <button onclick="copyEl(this.previousElementSibling)" title="Copy">&#128203;</button>
+      </div>
+
+      <div class="vol-row">
+        <label>&#x1F50A;</label>
+        <input type="range" min="0" max="100" value="80" oninput="vol=this.value/100;document.querySelector('.vv').textContent=this.value+'%'">
+        <span class="vv">80%</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- BANNER -->
+  <div class="banner-sec anim">
+    <img src="images/worms-30th.png" alt="Worms" class="banner-img"
+         onerror="this.parentElement.style.display='none'">
+  </div>
+
+  <!-- TERMINAL DEMO -->
+  <section class="sec" id="demo">
+    <div class="sec-header anim">
+      <div class="label">Live Demo</div>
+      <h2>See it in action</h2>
+      <p>Your worm reports for duty the moment your agent needs you.</p>
+    </div>
+    <div class="term-wrap anim">
+      <div class="term" id="demoTerm">
+        <div class="term-bar">
+          <div class="term-dot r"></div><div class="term-dot y"></div><div class="term-dot g"></div>
+          <div class="term-title">wormping : ~/my-project</div>
+        </div>
+        <div class="term-body" id="termBody"></div>
+      </div>
+      <div style="text-align:center;margin-top:14px;">
+        <button class="btn btn-ghost" onclick="runDemo()" style="font-size:12px;padding:8px 18px;">&#x21bb; Replay</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- SOUND CHECK -->
+  <section class="sc-sec sec" id="sounds">
+    <div class="sec-header anim">
+      <div class="label">Sound Check</div>
+      <h2>Real game audio</h2>
+      <p>Every clip ripped from Worms Armageddon. Click to preview.</p>
+    </div>
+    <div class="sc-grid anim" id="scGrid"></div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- HOW IT WORKS -->
+  <section class="sec">
+    <div class="sec-header anim">
+      <div class="label">How It Works</div>
+      <h2>Three events. Three sounds.</h2>
+      <p>Zero babysitting.</p>
+    </div>
+    <div class="steps anim">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <h3>Session Start</h3>
+        <p>"Incoming!" plays when you launch your AI agent. Your worm is locked and loaded.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <h3>Permission Needed</h3>
+        <p>"Come on then!" fires when your agent needs approval. Tab back, grant it, keep coding.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <h3>Task Complete</h3>
+        <p>"Brilliant!" sounds off when the job is done. Victory is yours, soldier.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- PACKS -->
+  <section class="sec" id="packs">
+    <div class="sec-header anim">
+      <div class="label">Voice Packs</div>
+      <h2>20 real soundbanks</h2>
+      <p>Every accent from the game. Select the ones you want and copy your install command.</p>
+    </div>
+    <div class="anim">
+      <div class="pk-filters" id="pkFilters">
+        <button class="pk-f on" data-f="all">All</button>
+        <button class="pk-f" data-f="classic">Classic</button>
+        <button class="pk-f" data-f="british">British</button>
+        <button class="pk-f" data-f="world">World</button>
+        <button class="pk-f" data-f="special">Special</button>
+      </div>
+      <div class="pk-acts">
+        <button onclick="selPacks('defaults')">Defaults</button>
+        <button onclick="selPacks('all')">All</button>
+        <button onclick="selPacks('none')">None</button>
+      </div>
+      <div class="pk-count" id="pkCount">3 packs selected</div>
+      <div class="pk-grid" id="pkGrid"></div>
+
+      <div class="inst-box" id="install">
+        <h3>Your install command</h3>
+        <div class="inst-code"><span class="pr">$ </span><span id="instCmd">curl -fsSL wormping.vercel.app/install.sh | bash -s english angry_scots rasta</span></div>
+        <button class="btn btn-accent" onclick="copyEl(document.getElementById('instCmd'))" style="font-size:13px;padding:10px 24px;">Copy Command</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- FEATURES -->
+  <section class="sec" id="features">
+    <div class="sec-header anim">
+      <div class="label">Features</div>
+      <h2>Battle-tested</h2>
+      <p>Everything you need. Nothing you don't.</p>
+    </div>
+    <div class="feat-grid anim">
+      <div class="feat"><div class="feat-ic">&#x1F50A;</div><h3>Volume Control</h3><p>Set volume 0 to 100 in config. Your worms, your decibels.</p></div>
+      <div class="feat"><div class="feat-ic">&#x1F504;</div><h3>No Repeats</h3><p>Tracks last-played per category. Never the same line twice in a row.</p></div>
+      <div class="feat"><div class="feat-ic">&#x1F3DB;&#xFE0F;</div><h3>Category Toggles</h3><p>Enable or disable greeting, acknowledge, complete, error, annoyed.</p></div>
+      <div class="feat"><div class="feat-ic">&#x1F4CB;</div><h3>Tab Titles</h3><p>Terminal tab shows project name + colored status dot.</p></div>
+      <div class="feat"><div class="feat-ic">&#x1F514;</div><h3>Desktop Notifications</h3><p>Push alerts when your terminal is out of focus. Sound + visual.</p></div>
+      <div class="feat"><div class="feat-ic">&#x1F916;</div><h3>MCP Server</h3><p>Your agent calls play_sound directly. Programmatic audio.</p></div>
+      <div class="feat"><div class="feat-ic">&#x1F3AF;</div><h3>Multi-IDE</h3><p>VS Code, Cursor, Windsurf, Claude Code. Anything with hooks.</p></div>
+      <div class="feat"><div class="feat-ic">&#x1F30D;</div><h3>Community Packs</h3><p>Create your own. Any game, any character. Share with the world.</p></div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- SUPPORTED -->
+  <section class="sec">
+    <div class="sec-header anim"><div class="label">Compatibility</div><h2>Works with your stack</h2></div>
+    <div class="tools anim">
+      <div class="tool">&#x1F4BB; Claude Code</div>
+      <div class="tool">&#x1F4DD; Codex</div>
+      <div class="tool">&#x1F5B1;&#xFE0F; Cursor</div>
+      <div class="tool">&#x1F30A; Windsurf</div>
+      <div class="tool">&#x1F4E6; OpenCode</div>
+      <div class="tool">&#x2728; Kiro</div>
+      <div class="tool">&#x1F680; Any MCP Client</div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- TRAINER -->
+  <section class="sec">
+    <div class="sec-header anim"><div class="label">Bonus</div><h2>Worm Trainer <span style="color:var(--accent)">v2.0</span></h2><p>Your personal drill sergeant. Accountability, worm-style.</p></div>
+    <div class="trainer anim">
+      <h3>&#x1F4AA; "Drop and give me twenty!"</h3>
+      <p>Reminds you to move between coding sessions. Log reps, hit your target, hear "BRILLIANT!"</p>
+      <div class="tr-stats">
+        <div class="tr-stat"><div class="n">300</div><div class="l">Pushups</div></div>
+        <div class="tr-stat"><div class="n">300</div><div class="l">Squats</div></div>
+        <div class="tr-stat"><div class="n">20</div><div class="l">Min interval</div></div>
+      </div>
+      <div style="margin-top:24px;">
+        <code style="font-family:var(--mono);color:var(--teal);font-size:13px;background:rgba(0,0,0,0.3);padding:8px 16px;border-radius:8px;">wormping trainer on</code>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- CTA -->
+  <section class="sec cta-sec">
+    <div class="anim">
+      <h2>Ready to deploy<br>your worm?</h2>
+      <p>One command. 20 voice packs. Zero babysitting.</p>
+      <div class="install-cmd" style="animation:none;margin-top:0;">
+        <code><span class="pr">$</span> curl -fsSL wormping.vercel.app/install.sh | bash</code>
+        <button onclick="copyEl(this.previousElementSibling)">&#128203;</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="foot-links">
+      <a href="https://github.com/huntclubhero/wormping" target="_blank">GitHub</a>
+      <a href="#">Discord</a>
+      <a href="https://twitter.com/huntclubhero" target="_blank">X / Twitter</a>
+    </div>
+    <div class="sub">
+      Built with &#x1F4A3; by <a href="https://github.com/huntclubhero" target="_blank">@huntclubhero</a>. MIT License.<br>
+      Inspired by <a href="https://www.peonping.com/" target="_blank">PeonPing</a>. Worms Armageddon is a trademark of Team17.<br>
+      Sound files from Worms Armageddon by Team17 Digital Limited. Fan project, not affiliated with Team17.
+    </div>
+  </footer>
+
+  <script>
+    /* ==================== AUDIO ==================== */
+    let vol = 0.8, cur = null;
+
+    function playSound(dir, file, ev) {
+      if (cur) { cur.pause(); cur.currentTime = 0; }
+      cur = new Audio(`sounds/${dir}/${file}.mp3`);
+      cur.volume = vol;
+      cur.play().catch(() => {});
+      if (ev) boom(ev.clientX, ev.clientY); else boom(innerWidth/2, innerHeight/3);
+      const pk = packs.find(p => p.dir === dir);
+      const ln = pk?.lines.find(l => l.f === file);
+      if (pk && ln) toast(ln.l, ln.c, pk.name);
+    }
+
+    /* ==================== PACKS DATA ==================== */
+    const packs = [
+      { id:'english', dir:'english', name:'English', game:'Worms Armageddon', em:'&#x1F1EC;&#x1F1E7;', fl:'classic', df:true,
+        lines:[
+          {f:'INCOMING',l:'Incoming!',c:'greeting'},{f:'HELLO',l:'Hello!',c:'greeting'},{f:'FIRSTBLOOD',l:'First blood!',c:'greeting'},
+          {f:'BRILLIANT',l:'Brilliant!',c:'complete'},{f:'EXCELLENT',l:'Excellent!',c:'complete'},{f:'VICTORY',l:'Victory!',c:'complete'},{f:'PERFECT',l:'Perfect!',c:'complete'},{f:'FLAWLESS',l:'Flawless!',c:'complete'},{f:'FATALITY',l:'Fatality!',c:'complete'},
+          {f:'COMEONTHEN',l:'Come on then!',c:'permission'},{f:'HURRY',l:'Hurry!',c:'permission'},{f:'JUSTYOUWAIT',l:'Just you wait!',c:'permission'},{f:'ILLGETYOU',l:"I'll get you!",c:'permission'},
+          {f:'OOPS',l:'Oops!',c:'error'},{f:'MISSED',l:'Missed!',c:'error'},{f:'BUMMER',l:'Bummer!',c:'error'},{f:'RUNAWAY',l:'Run away!',c:'error'},{f:'TAKECOVER',l:'Take cover!',c:'error'},{f:'TRAITOR',l:'Traitor!',c:'error'},
+          {f:'GOAWAY',l:'Go away!',c:'annoyed'},{f:'LEAVEMEALONE',l:'Leave me alone!',c:'annoyed'},{f:'BORING',l:'Boring!',c:'annoyed'},{f:'COWARD',l:'Coward!',c:'annoyed'},{f:'STUPID',l:'Stupid!',c:'annoyed'},
+          {f:'AMAZING',l:'Amazing!',c:'acknowledge'},{f:'WATCHTHIS',l:'Watch this!',c:'acknowledge'},{f:'YESSIR',l:'Yes sir!',c:'acknowledge'},{f:'REVENGE',l:'Revenge!',c:'acknowledge'},
+          {f:'KAMIKAZE',l:'Kamikaze!',c:'special'},{f:'GRENADE',l:'Grenade!',c:'special'},{f:'FIRE',l:'Fire!',c:'special'},{f:'BYEBYE',l:'Bye bye!',c:'special'},
+        ]},
+      { id:'angry_scots', dir:'angry_scots', name:'Angry Scots', game:'Worms Armageddon', em:'&#x1F3F4;&#xE0067;&#xE0062;&#xE0073;&#xE0063;&#xE0074;&#xE007F;', fl:'british', df:true,
+        lines:[{f:'INCOMING',l:'Incoming!',c:'greeting'},{f:'HELLO',l:'Hello!',c:'greeting'},{f:'BRILLIANT',l:'Brilliant!',c:'complete'},{f:'COMEONTHEN',l:'Come on then!',c:'permission'},{f:'OOPS',l:'Oops!',c:'error'},{f:'GOAWAY',l:'Go away!',c:'annoyed'},{f:'AMAZING',l:'Amazing!',c:'acknowledge'},{f:'VICTORY',l:'Victory!',c:'complete'},{f:'FATALITY',l:'Fatality!',c:'complete'},{f:'REVENGE',l:'Revenge!',c:'acknowledge'}]},
+      { id:'rasta', dir:'rasta', name:'Rasta', game:'Worms Armageddon', em:'&#x1F1EF;&#x1F1F2;', fl:'world', df:true,
+        lines:[{f:'INCOMING',l:'Incoming!',c:'greeting'},{f:'HELLO',l:'Hello!',c:'greeting'},{f:'BRILLIANT',l:'Brilliant!',c:'complete'},{f:'COMEONTHEN',l:'Come on then!',c:'permission'},{f:'OOPS',l:'Oops!',c:'error'},{f:'GOAWAY',l:'Go away!',c:'annoyed'},{f:'AMAZING',l:'Amazing!',c:'acknowledge'},{f:'VICTORY',l:'Victory!',c:'complete'},{f:'KAMIKAZE',l:'Kamikaze!',c:'special'},{f:'BORING',l:'Boring!',c:'annoyed'}]},
+      { id:'the_raj', dir:'the_raj', name:'The Raj', game:'Worms Armageddon', em:'&#x1F3A9;', fl:'british',
+        lines:[{f:'INCOMING',l:'Incoming!',c:'greeting'},{f:'BRILLIANT',l:'Brilliant!',c:'complete'},{f:'COMEONTHEN',l:'Come on then!',c:'permission'},{f:'OOPS',l:'Oops!',c:'error'},{f:'GOAWAY',l:'Go away!',c:'annoyed'},{f:'EXCELLENT',l:'Excellent!',c:'complete'},{f:'FATALITY',l:'Fatality!',c:'complete'},{f:'WATCHTHIS',l:'Watch this!',c:'acknowledge'}]},
+      { id:'drillsgt', dir:'drillsgt', name:'Drill Sergeant', game:'Worms Armageddon', em:'&#x1FA96;', fl:'special',
+        lines:[{f:'INCOMING',l:'Incoming!',c:'greeting'},{f:'BRILLIANT',l:'Brilliant!',c:'complete'},{f:'COMEONTHEN',l:'Come on then!',c:'permission'},{f:'OOPS',l:'Oops!',c:'error'},{f:'GOAWAY',l:'Go away!',c:'annoyed'},{f:'YESSIR',l:'Yes sir!',c:'acknowledge'},{f:'FIRSTBLOOD',l:'First blood!',c:'greeting'},{f:'REVENGE',l:'Revenge!',c:'acknowledge'}]},
+      { id:'french', dir:'french', name:'French', game:'Worms Armageddon', em:'&#x1F1EB;&#x1F1F7;', fl:'world',
+        lines:[{f:'INCOMING',l:'Incoming!',c:'greeting'},{f:'BRILLIANT',l:'Brilliant!',c:'complete'},{f:'COMEONTHEN',l:'Come on then!',c:'permission'},{f:'OOPS',l:'Oops!',c:'error'},{f:'GOAWAY',l:'Go away!',c:'annoyed'},{f:'AMAZING',l:'Amazing!',c:'acknowledge'},{f:'VICTORY',l:'Victory!',c:'complete'},{f:'GRENADE',l:'Grenade!',c:'special'}]},
+      { id:'brooklyn', dir:'brooklyn', name:'Brooklyn', game:'Worms Armageddon', em:'&#x1F5FD;', fl:'world',
+        lines:[{f:'INCOMING',l:'Incoming!',c:'greeting'},{f:'BRILLIANT',l:'Brilliant!',c:'complete'},{f:'COMEONTHEN',l:'Come on then!',c:'permission'},{f:'OOPS',l:'Oops!',c:'error'},{f:'GOAWAY',l:'Go away!',c:'annoyed'},{f:'AMAZING',l:'Amazing!',c:'acknowledge'},{f:'FATALITY',l:'Fatality!',c:'complete'},{f:'ILLGETYOU',l:"I'll get you!",c:'permission'}]},
+      { id:'soul_man', dir:'soul_man', name:'Soul Man', game:'Worms Armageddon', em:'&#x1F3B6;', fl:'special',
+        lines:[{f:'INCOMING',l:'Incoming!',c:'greeting'},{f:'BRILLIANT',l:'Brilliant!',c:'complete'},{f:'COMEONTHEN',l:'Come on then!',c:'permission'},{f:'OOPS',l:'Oops!',c:'error'},{f:'GOAWAY',l:'Go away!',c:'annoyed'},{f:'AMAZING',l:'Amazing!',c:'acknowledge'},{f:'EXCELLENT',l:'Excellent!',c:'complete'},{f:'BORING',l:'Boring!',c:'annoyed'}]},
+      { id:'scouser', dir:'scouser', name:'Scouser', game:'Worms Armageddon', em:'&#x26BD;', fl:'british',
+        lines:[{f:'INCOMING',l:'Incoming!',c:'greeting'},{f:'BRILLIANT',l:'Brilliant!',c:'complete'},{f:'COMEONTHEN',l:'Come on then!',c:'permission'},{f:'OOPS',l:'Oops!',c:'error'},{f:'GOAWAY',l:'Go away!',c:'annoyed'},{f:'LEAVEMEALONE',l:'Leave me alone!',c:'annoyed'},{f:'WATCHTHIS',l:'Watch this!',c:'acknowledge'},{f:'COWARD',l:'Coward!',c:'annoyed'}]},
+      { id:'australian', dir:'australian', name:'Australian', game:'Worms Armageddon', em:'&#x1F1E6;&#x1F1FA;', fl:'world',
+        lines:[{f:'INCOMING',l:'Incoming!',c:'greeting'},{f:'BRILLIANT',l:'Brilliant!',c:'complete'},{f:'COMEONTHEN',l:'Come on then!',c:'permission'},{f:'OOPS',l:'Oops!',c:'error'},{f:'GOAWAY',l:'Go away!',c:'annoyed'},{f:'AMAZING',l:'Amazing!',c:'acknowledge'},{f:'VICTORY',l:'Victory!',c:'complete'},{f:'STUPID',l:'Stupid!',c:'annoyed'}]},
+      { id:'irish', dir:'irish', name:'Irish', game:'Worms Armageddon', em:'&#x1F1EE;&#x1F1EA;', fl:'world',
+        lines:[{f:'INCOMING',l:'Incoming!',c:'greeting'},{f:'BRILLIANT',l:'Brilliant!',c:'complete'},{f:'COMEONTHEN',l:'Come on then!',c:'permission'},{f:'OOPS',l:'Oops!',c:'error'},{f:'GOAWAY',l:'Go away!',c:'annoyed'},{f:'EXCELLENT',l:'Excellent!',c:'complete'},{f:'HELLO',l:'Hello!',c:'greeting'},{f:'REVENGE',l:'Revenge!',c:'acknowledge'}]},
+      { id:'redneck', dir:'redneck', name:'Redneck', game:'Worms Armageddon', em:'&#x1F920;', fl:'world',
+        lines:[{f:'INCOMING',l:'Incoming!',c:'greeting'},{f:'BRILLIANT',l:'Brilliant!',c:'complete'},{f:'COMEONTHEN',l:'Come on then!',c:'permission'},{f:'OOPS',l:'Oops!',c:'error'},{f:'GOAWAY',l:'Go away!',c:'annoyed'},{f:'YESSIR',l:'Yes sir!',c:'acknowledge'},{f:'FIRE',l:'Fire!',c:'special'},{f:'KAMIKAZE',l:'Kamikaze!',c:'special'}]},
+      { id:'alien', dir:'alien', name:'Cyberworms', game:'Worms Armageddon', em:'&#x1F47E;', fl:'special',
+        lines:[{f:'INCOMING',l:'Incoming!',c:'greeting'},{f:'BRILLIANT',l:'Brilliant!',c:'complete'},{f:'COMEONTHEN',l:'Come on then!',c:'permission'},{f:'OOPS',l:'Oops!',c:'error'},{f:'GOAWAY',l:'Go away!',c:'annoyed'},{f:'AMAZING',l:'Amazing!',c:'acknowledge'},{f:'FATALITY',l:'Fatality!',c:'complete'},{f:'TAKECOVER',l:'Take cover!',c:'error'}]},
+      { id:'action_hero', dir:'action_hero', name:'Wideboy', game:'Worms Armageddon', em:'&#x1F4A5;', fl:'special',
+        lines:[{f:'INCOMING',l:'Incoming!',c:'greeting'},{f:'BRILLIANT',l:'Brilliant!',c:'complete'},{f:'COMEONTHEN',l:'Come on then!',c:'permission'},{f:'OOPS',l:'Oops!',c:'error'},{f:'GOAWAY',l:'Go away!',c:'annoyed'},{f:'EXCELLENT',l:'Excellent!',c:'complete'},{f:'FIRSTBLOOD',l:'First blood!',c:'greeting'},{f:'REVENGE',l:'Revenge!',c:'acknowledge'}]},
+      { id:'thespian', dir:'thespian', name:'Thespian', game:'Worms Armageddon', em:'&#x1F3AD;', fl:'special',
+        lines:[{f:'INCOMING',l:'Incoming!',c:'greeting'},{f:'BRILLIANT',l:'Brilliant!',c:'complete'},{f:'COMEONTHEN',l:'Come on then!',c:'permission'},{f:'OOPS',l:'Oops!',c:'error'},{f:'GOAWAY',l:'Go away!',c:'annoyed'},{f:'AMAZING',l:'Amazing!',c:'acknowledge'},{f:'BORING',l:'Boring!',c:'annoyed'},{f:'FLAWLESS',l:'Flawless!',c:'complete'}]},
+      { id:'geezer', dir:'geezer', name:'Geezer', game:'Worms Armageddon', em:'&#x1F44A;', fl:'british',
+        lines:[{f:'INCOMING',l:'Incoming!',c:'greeting'},{f:'BRILLIANT',l:'Brilliant!',c:'complete'},{f:'COMEONTHEN',l:'Come on then!',c:'permission'},{f:'OOPS',l:'Oops!',c:'error'},{f:'GOAWAY',l:'Go away!',c:'annoyed'},{f:'LEAVEMEALONE',l:'Leave me alone!',c:'annoyed'},{f:'ILLGETYOU',l:"I'll get you!",c:'permission'},{f:'STUPID',l:'Stupid!',c:'annoyed'}]},
+      { id:'grandpa', dir:'grandpa', name:'Stiff Upper Lip', game:'Worms Armageddon', em:'&#x1F9D3;', fl:'british',
+        lines:[{f:'INCOMING',l:'Incoming!',c:'greeting'},{f:'BRILLIANT',l:'Brilliant!',c:'complete'},{f:'COMEONTHEN',l:'Come on then!',c:'permission'},{f:'OOPS',l:'Oops!',c:'error'},{f:'GOAWAY',l:'Go away!',c:'annoyed'},{f:'EXCELLENT',l:'Excellent!',c:'complete'},{f:'WATCHTHIS',l:'Watch this!',c:'acknowledge'},{f:'BYEBYE',l:'Bye bye!',c:'special'}]},
+      { id:'squeaky', dir:'squeaky', name:'Kidz', game:'Worms Armageddon', em:'&#x1F476;', fl:'classic',
+        lines:[{f:'INCOMING',l:'Incoming!',c:'greeting'},{f:'BRILLIANT',l:'Brilliant!',c:'complete'},{f:'COMEONTHEN',l:'Come on then!',c:'permission'},{f:'OOPS',l:'Oops!',c:'error'},{f:'GOAWAY',l:'Go away!',c:'annoyed'},{f:'AMAZING',l:'Amazing!',c:'acknowledge'},{f:'HELLO',l:'Hello!',c:'greeting'},{f:'VICTORY',l:'Victory!',c:'complete'}]},
+      { id:'teamster', dir:'teamster', name:'Team17 Test', game:'Worms Armageddon', em:'&#x1F3AE;', fl:'classic',
+        lines:[{f:'INCOMING',l:'Incoming!',c:'greeting'},{f:'BRILLIANT',l:'Brilliant!',c:'complete'},{f:'COMEONTHEN',l:'Come on then!',c:'permission'},{f:'OOPS',l:'Oops!',c:'error'},{f:'GOAWAY',l:'Go away!',c:'annoyed'},{f:'AMAZING',l:'Amazing!',c:'acknowledge'},{f:'PERFECT',l:'Perfect!',c:'complete'},{f:'KAMIKAZE',l:'Kamikaze!',c:'special'}]},
+      { id:'pirate', dir:'pirate', name:'Wacky', game:'Worms Armageddon', em:'&#x1F92A;', fl:'special',
+        lines:[{f:'INCOMING',l:'Incoming!',c:'greeting'},{f:'BRILLIANT',l:'Brilliant!',c:'complete'},{f:'COMEONTHEN',l:'Come on then!',c:'permission'},{f:'OOPS',l:'Oops!',c:'error'},{f:'GOAWAY',l:'Go away!',c:'annoyed'},{f:'AMAZING',l:'Amazing!',c:'acknowledge'},{f:'FATALITY',l:'Fatality!',c:'complete'},{f:'RUNAWAY',l:'Run away!',c:'error'}]},
+    ];
+
+    let sel = new Set(['english','angry_scots','rasta']);
+
+    /* ==================== VFX ==================== */
+    function boom(x,y) {
+      const c = document.createElement('div'); c.className='expl'; c.style.cssText=`left:${x}px;top:${y}px`;
+      const cols = ['#FF6B35','#FFD93D','#FF5252','#FF69B4','#fff'];
+      for (let i=0;i<12;i++) {
+        const p = document.createElement('div'); p.className='expl-p';
+        const a = (Math.PI*2/12)*i+Math.random()*0.4, d=30+Math.random()*70;
+        p.style.setProperty('--x',Math.cos(a)*d+'px'); p.style.setProperty('--y',Math.sin(a)*d+'px');
+        const s=3+Math.random()*6; p.style.cssText+=`width:${s}px;height:${s}px;background:${cols[i%5]}`;
+        c.appendChild(p);
+      }
+      document.body.appendChild(c); setTimeout(()=>c.remove(),600);
+    }
+
+    function toast(txt,cat,pk) {
+      document.querySelectorAll('.toast').forEach(t=>t.remove());
+      const cc={greeting:'#4ECDC4',acknowledge:'#4ECDC4',permission:'#FF69B4',complete:'#00E676',error:'#FF5252',annoyed:'#FFD93D',special:'#FF6B35'};
+      const t=document.createElement('div'); t.className='toast';
+      t.innerHTML=`<span style="font-size:18px">&#x1F4A3;</span><div><div style="font-weight:700;font-size:13px">"${txt}" <span class="wv"><i></i><i></i><i></i><i></i></span></div><div style="font-size:11px;color:${cc[cat]||'#999'};text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;font-weight:600">${cat} | ${pk}</div></div>`;
+      document.body.appendChild(t); setTimeout(()=>t.remove(),3000);
+    }
+
+    /* ==================== SOUND CHECK ==================== */
+    function renderSC() {
+      const g=document.getElementById('scGrid');
+      const cats=[{k:'greeting',l:'Greeting',d:'Session starts',f:'INCOMING'},{k:'acknowledge',l:'Acknowledge',d:'Task accepted',f:'AMAZING'},{k:'permission',l:'Permission',d:'Needs approval',f:'COMEONTHEN'},{k:'complete',l:'Complete',d:'Job done',f:'BRILLIANT'},{k:'error',l:'Error',d:'Something broke',f:'OOPS'},{k:'annoyed',l:'Annoyed',d:'Clicked too much',f:'GOAWAY'}];
+      g.innerHTML=cats.map(c=>{
+        const ln=packs[0].lines.find(l=>l.f===c.f);
+        return `<div class="sc-card" onclick="playSound('english','${c.f}',event);this.classList.add('playing');setTimeout(()=>this.classList.remove('playing'),1500)"><button class="sc-play" onclick="event.stopPropagation();playSound('english','${c.f}',event)">&#9654;</button><div class="sc-info"><div class="sc-line">"${ln?ln.l:c.f}"</div><div class="sc-cat">${c.l} | ${c.d}</div></div></div>`;
+      }).join('');
+    }
+
+    /* ==================== PACKS ==================== */
+    function renderPK(fl='all') {
+      const g=document.getElementById('pkGrid');
+      const f=fl==='all'?packs:packs.filter(p=>p.fl===fl);
+      g.innerHTML=f.map(p=>`
+        <div class="pk-card ${sel.has(p.id)?'sel':''}" data-pk="${p.id}" onclick="togPk('${p.id}')">
+          <div class="pk-head"><div class="pk-av">${p.em}</div><div><div class="pk-name">${p.name}</div><div class="pk-game">${p.game}</div></div></div>
+          <div class="pk-lines">${p.lines.slice(0,5).map(l=>`<div class="pk-line" onclick="event.stopPropagation()"><button class="mp" onclick="event.stopPropagation();playSound('${p.dir}','${l.f}',event)">&#9654;</button><span class="lt">"${l.l}"</span><span class="lc">${l.c}</span></div>`).join('')}</div>
+        </div>`).join('');
+    }
+
+    function togPk(id){sel.has(id)?sel.delete(id):sel.add(id);upPK();}
+    function selPacks(m){if(m==='all')packs.forEach(p=>sel.add(p.id));else if(m==='none')sel.clear();else{sel.clear();packs.filter(p=>p.df).forEach(p=>sel.add(p.id));}upPK();}
+    function upPK(){
+      document.getElementById('pkCount').textContent=`${sel.size} pack${sel.size!==1?'s':''} selected`;
+      const ids=[...sel].join(' ');
+      document.getElementById('instCmd').textContent=sel.size>0?`curl -fsSL wormping.vercel.app/install.sh | bash -s ${ids}`:'curl -fsSL wormping.vercel.app/install.sh | bash';
+      document.querySelectorAll('.pk-card').forEach(c=>c.classList.toggle('sel',sel.has(c.dataset.pk)));
+    }
+
+    /* ==================== FILTERS ==================== */
+    document.addEventListener('DOMContentLoaded',()=>{
+      document.querySelectorAll('.pk-f').forEach(b=>b.addEventListener('click',()=>{
+        document.querySelectorAll('.pk-f').forEach(x=>x.classList.remove('on'));
+        b.classList.add('on'); renderPK(b.dataset.f);
+      }));
+    });
+
+    /* ==================== TERMINAL DEMO ==================== */
+    const demoData=[
+      {t:'pr',x:'$ claude',d:0},
+      {t:'snd',x:'&#x1F50A; "Incoming!"',d:600,p:['english','INCOMING']},
+      {t:'b',d:900},
+      {t:'pr',x:'> Fix the banana bomb physics in game.ts',d:1200},
+      {t:'cmt',x:'  [you tab over to Discord]',d:1800},
+      {t:'b',d:2200},
+      {t:'perm',x:'&#x1F50A; "Come on then!" (permission needed)',d:2600,p:['english','COMEONTHEN']},
+      {t:'cmt',x:'  [you switch back, approve]',d:3200},
+      {t:'b',d:3600},
+      {t:'ok',x:'&#x2713; Fixed: banana bomb now obeys gravity',d:4000},
+      {t:'snd',x:'&#x1F50A; "Brilliant!" (task complete)',d:4600,p:['english','BRILLIANT']},
+      {t:'b',d:5000},
+      {t:'pr',x:'$ _',d:5400,cur:true}
+    ];
+    let dts=[];
+    function runDemo(){
+      const b=document.getElementById('termBody'); b.innerHTML='';
+      dts.forEach(t=>clearTimeout(t)); dts=[];
+      demoData.forEach(l=>{
+        dts.push(setTimeout(()=>{
+          const e=document.createElement('div'); e.className='tl';
+          const cls={pr:'t-pr',snd:'t-snd',cmt:'t-cmt',ok:'t-ok',perm:'t-perm'};
+          if(l.t==='b') e.innerHTML='&nbsp;';
+          else e.innerHTML=`<span class="${cls[l.t]||''}">${l.x}</span>${l.cur?'<span style="animation:pulse 1s infinite">|</span>':''}`;
+          b.appendChild(e); b.scrollTop=b.scrollHeight;
+          if(l.p) playSound(l.p[0],l.p[1]);
+        },l.d));
+      });
+    }
+
+    /* ==================== COPY ==================== */
+    function copyEl(el){navigator.clipboard.writeText(el.textContent.trim()).then(()=>toast('Copied!','complete','WormPing'));}
+
+    /* ==================== SCROLL ANIM ==================== */
+    const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis')}),{threshold:0.08});
+    document.addEventListener('DOMContentLoaded',()=>{
+      document.querySelectorAll('.anim').forEach(e=>io.observe(e));
+      renderSC(); renderPK();
+      const dio=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){runDemo();dio.unobserve(e.target)}}),{threshold:0.25});
+      dio.observe(document.getElementById('demoTerm'));
+    });
+  </script>
+</body>
+</html>
