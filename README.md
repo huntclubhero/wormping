@@ -105,7 +105,7 @@ When an event fires, WormPing picks a random voice line from your selected pack 
 - **No repeats**: Tracks last-played per category
 - **Volume control**: 0 to 100 via config
 - **Category toggles**: Enable/disable any event type
-- **Cross-platform**: macOS, Linux, Windows
+- **Cross-platform**: macOS (`afplay`), Linux (`paplay`/`aplay`/`mpv`/`ffplay`), Windows (`ffplay` preferred, PowerShell fallback)
 - **Tab titles**: Terminal tab shows project name + status
 - **Desktop notifications**: Push alerts when your terminal is in the background
 

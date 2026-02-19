@@ -231,6 +231,12 @@ detect_player() {
       fi
       ;;
     MINGW*|MSYS*|CYGWIN*)
+      # Prefer ffplay on Windows: PowerShell MediaPlayer needs a WPF dispatcher
+      # message pump that doesn't work in non-GUI shell contexts (Claude Code, etc.)
+      if command -v ffplay >/dev/null 2>&1; then
+        echo "ffplay"
+        return 0
+      fi
       echo "powershell"
       return 0
       ;;
