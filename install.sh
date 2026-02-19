@@ -17,7 +17,7 @@ WORMPING_DIR="$HOME/.wormping"
 SOUNDS_DIR="$WORMPING_DIR/sounds"
 CONFIG_FILE="$WORMPING_DIR/config"
 STATE_FILE="$WORMPING_DIR/state"
-CLAUDE_HOOKS_FILE="$HOME/.claude/hooks.json"
+CLAUDE_SETTINGS_FILE="$HOME/.claude/settings.json"
 
 # All available sound files per pack
 ALL_SOUNDS=(
@@ -587,43 +587,93 @@ add_to_path() {
   export PATH="$WORMPING_DIR:$PATH"
 }
 
-# Setup Claude Code hooks
+# Setup Claude Code hooks in settings.json (NOT hooks.json)
 setup_claude_hooks() {
   local claude_dir="$HOME/.claude"
   local wormping_cmd="$WORMPING_DIR/wormping"
 
   mkdir -p "$claude_dir"
 
-  if [ -f "$CLAUDE_HOOKS_FILE" ]; then
-    # Check if hooks already have wormping entries
-    if grep -q "wormping" "$CLAUDE_HOOKS_FILE" 2>/dev/null; then
-      log_info "Claude Code hooks already configured with WormPing"
-      return 0
-    fi
-
-    # File exists but no wormping hooks: we need to merge carefully
-    # Back up existing hooks
-    cp "$CLAUDE_HOOKS_FILE" "${CLAUDE_HOOKS_FILE}.bak"
-    log_info "Backed up existing hooks.json to hooks.json.bak"
+  # Check if settings.json already has wormping hooks
+  if [ -f "$CLAUDE_SETTINGS_FILE" ] && grep -q "wormping" "$CLAUDE_SETTINGS_FILE" 2>/dev/null; then
+    log_info "Claude Code hooks already configured with WormPing"
+    return 0
   fi
 
-  # Write the hooks configuration
-  # Using a heredoc with proper JSON formatting
-  cat > "$CLAUDE_HOOKS_FILE" << HOOKS_JSON
+  # Back up existing settings
+  if [ -f "$CLAUDE_SETTINGS_FILE" ]; then
+    cp "$CLAUDE_SETTINGS_FILE" "${CLAUDE_SETTINGS_FILE}.bak"
+    log_info "Backed up existing settings.json to settings.json.bak"
+  fi
+
+  # Merge hooks into settings.json using python if available, otherwise write fresh
+  if command -v python3 >/dev/null 2>&1 || command -v python >/dev/null 2>&1; then
+    local py
+    py="$(command -v python3 2>/dev/null || command -v python)"
+    "$py" - "$CLAUDE_SETTINGS_FILE" "$wormping_cmd" << 'PYMERGE'
+import json, sys
+
+settings_file = sys.argv[1]
+wormping_cmd = sys.argv[2]
+
+# Load existing settings or start fresh
+try:
+    with open(settings_file, 'r') as f:
+        settings = json.load(f)
+except (FileNotFoundError, json.JSONDecodeError):
+    settings = {}
+
+# Build wormping hooks with correct nested structure
+wormping_hooks = {
+    "SessionStart": [
+        {"hooks": [{"type": "command", "command": f"{wormping_cmd} play greeting", "async": True}]}
+    ],
+    "Stop": [
+        {"hooks": [{"type": "command", "command": f"{wormping_cmd} play complete", "async": True}]}
+    ],
+    "Notification": [
+        {"matcher": "permission_prompt", "hooks": [{"type": "command", "command": f"{wormping_cmd} play permission", "async": True}]}
+    ]
+}
+
+# Merge into existing hooks (preserve user's other hooks)
+if "hooks" not in settings:
+    settings["hooks"] = {}
+for event, entries in wormping_hooks.items():
+    settings["hooks"][event] = entries
+
+with open(settings_file, 'w') as f:
+    json.dump(settings, f, indent=2)
+    f.write('\n')
+PYMERGE
+  else
+    # No python available: write settings with hooks directly
+    if [ -f "$CLAUDE_SETTINGS_FILE" ]; then
+      log_warn "Cannot merge hooks (python not found). Writing fresh settings.json."
+    fi
+    cat > "$CLAUDE_SETTINGS_FILE" << SETTINGS_JSON
 {
   "hooks": {
     "SessionStart": [
       {
-        "type": "command",
-        "command": "${wormping_cmd} play greeting",
-        "async": true
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${wormping_cmd} play greeting",
+            "async": true
+          }
+        ]
       }
     ],
     "Stop": [
       {
-        "type": "command",
-        "command": "${wormping_cmd} play complete",
-        "async": true
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${wormping_cmd} play complete",
+            "async": true
+          }
+        ]
       }
     ],
     "Notification": [
@@ -640,9 +690,10 @@ setup_claude_hooks() {
     ]
   }
 }
-HOOKS_JSON
+SETTINGS_JSON
+  fi
 
-  log_success "Claude Code hooks configured at: $CLAUDE_HOOKS_FILE"
+  log_success "Claude Code hooks configured in: $CLAUDE_SETTINGS_FILE"
   log_info "  SessionStart             : plays a greeting sound"
   log_info "  Stop                     : plays when agent finishes responding"
   log_info "  Notification (permission): plays when agent needs approval"
