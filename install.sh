@@ -637,16 +637,30 @@ setup_claude_hooks() {
   cat > "$CLAUDE_HOOKS_FILE" << HOOKS_JSON
 {
   "hooks": {
-    "session_start": [
+    "SessionStart": [
       {
         "type": "command",
-        "command": "${wormping_cmd} play greeting"
+        "command": "${wormping_cmd} play greeting",
+        "async": true
       }
     ],
-    "notification": [
+    "Stop": [
       {
         "type": "command",
-        "command": "${wormping_cmd} play complete"
+        "command": "${wormping_cmd} play complete",
+        "async": true
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "permission_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${wormping_cmd} play permission",
+            "async": true
+          }
+        ]
       }
     ]
   }
@@ -654,8 +668,9 @@ setup_claude_hooks() {
 HOOKS_JSON
 
   log_success "Claude Code hooks configured at: $CLAUDE_HOOKS_FILE"
-  log_info "  session_start : plays a greeting sound"
-  log_info "  notification  : plays a completion sound"
+  log_info "  SessionStart             : plays a greeting sound"
+  log_info "  Stop                     : plays when agent finishes responding"
+  log_info "  Notification (permission): plays when agent needs approval"
 }
 
 # Write default config

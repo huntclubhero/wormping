@@ -5,3 +5,4 @@ Thumbs.db
 *.log
 soundbanks_raw/
 soundbanks.zip
+.vercel

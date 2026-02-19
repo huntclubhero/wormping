@@ -15,12 +15,11 @@ AI coding agents don't tell you when they're done or need permission. You end up
 
 **WormPing fixes this.** It plays real Worms Armageddon voice lines at key moments:
 
-| Event | Sound | What Happens |
-|-------|-------|-------------|
-| Session starts | "Incoming!" | Your worm greets you |
-| Permission needed | "Come on then!" | Your agent needs approval |
-| Task complete | "Brilliant!" | The job is done |
-| Error | "Oops!" | Something went wrong |
+| Hook Event | Sound | What Happens |
+|------------|-------|-------------|
+| `SessionStart` | "Incoming!" | Your worm greets you |
+| `Notification` (permission_prompt) | "Come on then!" | Your agent needs approval |
+| `Stop` | "Brilliant!" | Agent finished, your turn to act |
 
 ## Install
 
@@ -83,7 +82,7 @@ wormping config
 
 WormPing hooks into your AI coding tools via their event systems:
 
-1. **Claude Code**: Uses the hooks system (`~/.claude/hooks.json`)
+1. **Claude Code**: Uses the hooks system (`~/.claude/hooks.json`) with `SessionStart`, `Stop`, and `Notification` events
 2. **Cursor / Windsurf**: Uses extension hooks
 3. **Any MCP Client**: Exposes a `play_sound` tool
 
