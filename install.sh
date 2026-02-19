@@ -206,124 +206,101 @@ save_state() {
   done
 }
 
-# Detect audio player for the current platform
-detect_player() {
-  case "$(uname -s)" in
-    Darwin*)
-      if command -v afplay >/dev/null 2>&1; then
-        echo "afplay"
-        return 0
-      fi
-      ;;
-    Linux*)
-      if command -v paplay >/dev/null 2>&1; then
-        echo "paplay"
-        return 0
-      elif command -v aplay >/dev/null 2>&1; then
-        echo "aplay"
-        return 0
-      elif command -v mpv >/dev/null 2>&1; then
-        echo "mpv"
-        return 0
-      elif command -v ffplay >/dev/null 2>&1; then
-        echo "ffplay"
-        return 0
-      fi
-      ;;
-    MINGW*|MSYS*|CYGWIN*)
-      # Prefer ffplay on Windows: PowerShell MediaPlayer needs a WPF dispatcher
-      # message pump that doesn't work in non-GUI shell contexts (Claude Code, etc.)
-      if command -v ffplay >/dev/null 2>&1; then
-        echo "ffplay"
-        return 0
-      fi
-      echo "powershell"
-      return 0
-      ;;
-  esac
-
-  # Fallback: check for powershell anywhere (WSL, Git Bash on Windows)
-  if command -v powershell.exe >/dev/null 2>&1; then
-    echo "powershell.exe"
-    return 0
-  elif command -v powershell >/dev/null 2>&1; then
-    echo "powershell"
+# Resolve ffplay binary: check PATH, then cached path, then search common locations
+resolve_ffplay() {
+  # 1. Already in PATH
+  if command -v ffplay >/dev/null 2>&1; then
+    command -v ffplay
     return 0
   fi
 
-  echo "none"
+  # 2. Cached from a previous run
+  local cache_file="$WORMPING_DIR/.ffplay_path"
+  if [ -f "$cache_file" ]; then
+    local cached
+    cached="$(cat "$cache_file")"
+    if [ -x "$cached" ]; then
+      echo "$cached"
+      return 0
+    fi
+  fi
+
+  # 3. Search common Windows locations
+  local home="${HOME:-}"
+  local user="${USER:-${USERNAME:-unknown}}"
+  [ -z "$home" ] && home="/c/Users/$user"
+  local dirs=(
+    "$home/AppData/Local/Microsoft/WinGet/Links"
+    "$home/scoop/shims"
+    "/c/ProgramData/chocolatey/bin"
+    "/c/ffmpeg/bin"
+  )
+  for d in "${dirs[@]}"; do
+    if [ -x "$d/ffplay" ] || [ -x "$d/ffplay.exe" ]; then
+      echo "$d/ffplay"
+      return 0
+    fi
+  done
+
+  # 4. Deep search winget packages (ffplay is buried in subdirs)
+  local winget_dir="$home/AppData/Local/Microsoft/WinGet/Packages"
+  if [ -d "$winget_dir" ]; then
+    local found
+    found="$(find "$winget_dir" -maxdepth 5 -name 'ffplay.exe' 2>/dev/null | head -1)"
+    if [ -n "$found" ] && [ -x "$found" ]; then
+      echo "$found"
+      return 0
+    fi
+  fi
+
   return 1
 }
 
 # Play a sound file
 play_sound() {
   local file="$1"
-  local player
-  player="$(detect_player)" || {
-    echo "Error: No audio player found on this system" >&2
-    return 1
-  }
 
   if [ ! -f "$file" ]; then
     echo "Error: Sound file not found: $file" >&2
     return 1
   fi
 
-  # Convert to Windows path if needed for powershell
-  local play_path="$file"
-  if [[ "$player" == "powershell"* ]]; then
-    # Handle MSYS/Git Bash path conversion
-    if command -v cygpath >/dev/null 2>&1; then
-      play_path="$(cygpath -w "$file")"
-    elif [[ "$file" == /c/* ]] || [[ "$file" == /home/* ]]; then
-      play_path="$(echo "$file" | sed 's|^/\([a-zA-Z]\)/|\1:/|')"
-    fi
-  fi
-
-  case "$player" in
-    afplay)
-      # macOS: afplay supports volume 0.0 to 1.0
+  case "$(uname -s)" in
+    Darwin*)
       local vol
       vol=$(echo "scale=2; ${WORMPING_VOLUME}/100" | bc 2>/dev/null || echo "0.8")
-      afplay -v "$vol" "$file" &
+      afplay -v "$vol" "$file"
+      return $?
       ;;
-    paplay)
-      # PulseAudio: volume in 0-65536 range
-      local vol
-      vol=$(( WORMPING_VOLUME * 655 ))
-      paplay --volume="$vol" "$file" &
-      ;;
-    aplay)
-      # ALSA: no volume control via aplay, just play
-      aplay -q "$file" &
-      ;;
-    mpv)
-      local vol="${WORMPING_VOLUME}"
-      mpv --no-video --volume="$vol" "$file" >/dev/null 2>&1 &
-      ;;
-    ffplay)
-      local vol="${WORMPING_VOLUME}"
-      ffplay -nodisp -autoexit -volume "$vol" "$file" >/dev/null 2>&1 &
-      ;;
-    powershell|powershell.exe)
-      "$player" -NoProfile -NonInteractive -Command "
-        Add-Type -AssemblyName PresentationCore
-        \$player = New-Object System.Windows.Media.MediaPlayer
-        \$player.Open([Uri]::new('${play_path}'))
-        \$player.Volume = ${WORMPING_VOLUME} / 100.0
-        Start-Sleep -Milliseconds 200
-        \$player.Play()
-        Start-Sleep -Milliseconds 3000
-        \$player.Close()
-      " &
-      ;;
-    *)
-      echo "Error: Unsupported audio player: $player" >&2
-      return 1
+    Linux*)
+      if command -v paplay >/dev/null 2>&1; then
+        local vol=$(( WORMPING_VOLUME * 655 ))
+        paplay --volume="$vol" "$file"
+      elif command -v aplay >/dev/null 2>&1; then
+        aplay -q "$file"
+      elif command -v ffplay >/dev/null 2>&1; then
+        ffplay -nodisp -autoexit -volume "$WORMPING_VOLUME" "$file" >/dev/null 2>&1
+      elif command -v mpv >/dev/null 2>&1; then
+        mpv --no-video --volume="$WORMPING_VOLUME" "$file" >/dev/null 2>&1
+      else
+        echo "Error: No audio player found (install pulseaudio, ffplay, or mpv)" >&2
+        return 1
+      fi
+      return $?
       ;;
   esac
 
-  return 0
+  # Windows (MINGW/MSYS/CYGWIN) and generic fallback: use ffplay
+  local ffplay_bin
+  ffplay_bin="$(resolve_ffplay 2>/dev/null)" || {
+    echo "Error: ffplay not found. Install ffmpeg: winget install ffmpeg" >&2
+    return 1
+  }
+
+  # Cache the path for future hook subprocess calls
+  echo "$ffplay_bin" > "$WORMPING_DIR/.ffplay_path" 2>/dev/null
+
+  "$ffplay_bin" -nodisp -autoexit -volume "$WORMPING_VOLUME" "$file" >/dev/null 2>&1
 }
 
 # Pick a random sound from a category, avoiding the last played
@@ -337,7 +314,6 @@ pick_sound() {
     return 1
   fi
 
-  # Split into array
   read -ra sounds <<< "$sounds_str"
   local count=${#sounds[@]}
 
@@ -349,7 +325,6 @@ pick_sound() {
   load_state
   local last="${LAST_PLAYED[$category]:-}"
 
-  # If only one sound, just use it
   if [ $count -eq 1 ]; then
     echo "${sounds[0]}"
     return 0
@@ -357,10 +332,8 @@ pick_sound() {
 
   # Pick random, avoiding last played
   local attempts=0
-  local max_attempts=10
   local pick
-
-  while [ $attempts -lt $max_attempts ]; do
+  while [ $attempts -lt 10 ]; do
     local idx=$(( RANDOM % count ))
     pick="${sounds[$idx]}"
     if [ "$pick" != "$last" ]; then
@@ -369,10 +342,8 @@ pick_sound() {
     attempts=$((attempts + 1))
   done
 
-  # Update state
   LAST_PLAYED["$category"]="$pick"
   save_state
-
   echo "$pick"
 }
 
@@ -398,7 +369,6 @@ cmd_play() {
   local file="${SOUNDS_DIR}/${WORMPING_PACK}/${sound}.mp3"
 
   if [ ! -f "$file" ]; then
-    # Fallback to english pack if current pack missing the file
     file="${SOUNDS_DIR}/english/${sound}.mp3"
     if [ ! -f "$file" ]; then
       echo "Error: Sound file not found for ${WORMPING_PACK}/${sound}.mp3" >&2
@@ -415,7 +385,6 @@ cmd_list() {
   echo "======================"
   echo ""
 
-  # List installed packs
   echo "Installed packs:"
   if [ -d "$SOUNDS_DIR" ]; then
     for pack_dir in "$SOUNDS_DIR"/*/; do
